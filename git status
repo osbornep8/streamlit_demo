@@ -1,0 +1,87 @@
+[33mcommit e475e0f482f7500599080974b17f585dc217dc2d[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m)[m
+Author: osbornep8 <pereiraosborne8@gmail.com>
+Date:   Mon Nov 6 00:37:44 2023 +0000
+
+    File upload using git bash
+
+[1mdiff --git a/data/yellow_tripdata_2023-08.parquet b/data/yellow_tripdata_2023-08.parquet[m
+[1mnew file mode 100644[m
+[1mindex 0000000..2b56b1e[m
+Binary files /dev/null and b/data/yellow_tripdata_2023-08.parquet differ
+[1mdiff --git a/main.py b/main.py[m
+[1mnew file mode 100644[m
+[1mindex 0000000..9e48a28[m
+[1m--- /dev/null[m
+[1m+++ b/main.py[m
+[36m@@ -0,0 +1,61 @@[m
+[32m+[m[32mimport streamlit as st[m
+[32m+[m[32mimport pandas as pd[m
+[32m+[m
+[32m+[m[32mfrom sklearn.ensemble import RandomForestRegressor[m
+[32m+[m[32mfrom sklearn.metrics import mean_absolute_error, mean_squared_error, r2_score[m
+[32m+[m[32mheader = st.container()[m
+[32m+[m[32mdataset = st.container()[m
+[32m+[m[32mfeatures = st.container()[m
+[32m+[m[32mmodel_training = st.container()[m
+[32m+[m
+[32m+[m[32m@st.cache_data[m
+[32m+[m[32mdef get_data(filename):[m
+[32m+[m[32m    taxi_data = pd.read_parquet(filename)[m
+[32m+[m[32m    return taxi_data[m[41m [m
+[32m+[m
+[32m+[m[32mwith header:[m
+[32m+[m[32m    st.title("Welcome to my first Data Science Project in Streamlit")[m
+[32m+[m
+[32m+[m[32mwith dataset:[m
+[32m+[m[32m    st.header("NYC Taxi Dataset")[m
+[32m+[m[32m    st.text("Data Source: ")[m
+[32m+[m[32m    taxi_data = get_data('data/yellow_tripdata_2023-08.parquet')[m
+[32m+[m[32m    # st.write(taxi_data.head())[m
+[32m+[m[32m    # st.write(taxi_data.describe())[m
+[32m+[m[32m    st.subheader("Pick-up Location ID Distribution on NYC Dataset")[m
+[32m+[m[32m    pulocation_dist = pd.DataFrame(taxi_data['PULocationID'].value_counts()).head(50)[m
+[32m+[m[32m    st.bar_chart(pulocation_dist)[m
+[32m+[m[32mwith features:[m
+[32m+[m[32m    st.header("Features I Created")[m
+[32m+[m[32m    st.markdown("* **First feature:** I created the first feature becuz of this.. I used the following logic..")[m
+[32m+[m[32m    st.markdown("* **Second feature:** I created the second feature based on... I calculated it using..")[m
+[32m+[m[32mwith model_training:[m
+[32m+[m[32m    st.header("Time to Train The Model!")[m
+[32m+[m[32m    st.text('Here you get to choose the hyperparamets of the model and see how the performance goes!')[m
+[32m+[m[32m    sel_col, disp_col = st.columns(2)[m
+[32m+[m[32m    max_depth = sel_col.slider('What should be the max depth of the model?', min_value=10, max_value=100, value=10, step=10)[m
+[32m+[m[32m    n_estimators = sel_col.selectbox('How many trees should there be?', options=[100,200,300,'No limit'], index=0)[m
+[32m+[m[32m    sel_col.text('Here is a list of features to choose from: ')[m
+[32m+[m[32m    sel_col.table(taxi_data.columns)[m
+[32m+[m[32m    input_feature = sel_col.text_input('Which feature should be used as Input Feature?', 'PULocationID')[m
+[32m+[m
+[32m+[m[32m    if n_estimators == 'No limit':[m
+[32m+[m[32m        regr = RandomForestRegressor(max_depth=max_depth)[m
+[32m+[m[32m    else:[m
+[32m+[m[32m        regr = RandomForestRegressor(max_depth=max_depth, n_estimators=n_estimators)[m
+[32m+[m
+[32m+[m[32m    X = taxi_data[[input_feature]].to_numpy()[m
+[32m+[m[32m    X = X.reshape(-1,1)[m
+[32m+[m[32m    y = taxi_data[['trip_distance']].to_numpy()[m
+[32m+[m[32m    y = y.reshape(-1,1)[m
+[32m+[m[32m    st.write(X.shape, y.shape)[m
+[32m+[m
+[32m+[m[32m    regr.fit(X,y)[m
+[32m+[m[32m    prediction = regr.predict(y)[m
+[32m+[m
+[32m+[m[32m    disp_col.subheader('Mean Absolute Error of the model is: ')[m
+[32m+[m[32m    disp_col.write(mean_absolute_error(y,prediction))[m
+[32m+[m[32m    disp_col.subheader('Mean Squared Error of the model is: ')[m
+[32m+[m[32m    disp_col.write(mean_squared_error(y,prediction))[m
+[32m+[m[32m    disp_col.subheader('R sqaured score of the model is: ')[m
+[32m+[m[32m    disp_col.write(r2_score(y,prediction))[m
+\ No newline at end of file[m
+[1mdiff --git a/requirements.txt b/requirements.txt[m
+[1mnew file mode 100644[m
+[1mindex 0000000..d8d091f[m
+[1m--- /dev/null[m
+[1m+++ b/requirements.txt[m
+[36m@@ -0,0 +1,3 @@[m
+[32m+[m[32mpandas==2.1.2[m
+[32m+[m[32mscikit_learn==1.3.2[m
+[32m+[m[32mstreamlit==1.28.1[m
